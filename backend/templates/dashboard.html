@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Welcome, <span id="username-display">{% if user %}{{ user.username }}{% else %}Archaeologist{% endif %}</span></h1>
+  <p>Your artifact collection and analysis workspace</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-value" id="stat-total">—</div>
+    <div class="stat-label">Fragments</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="stat-analyzed">—</div>
+    <div class="stat-label">Analyzed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="stat-area">—</div>
+    <div class="stat-label">Total cm²</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="stat-measured">—</div>
+    <div class="stat-label">Measured</div>
+  </div>
+</div>
+
+<div class="flex justify-between items-center mb-2">
+  <h2 style="font-family:var(--font-display);color:var(--earth-brown)">Your Fragments</h2>
+  <a href="/upload" class="btn btn-primary">+ Upload Fragment</a>
+</div>
+
+<div id="artifacts-grid" class="grid grid-3">
+  <div class="loading">Loading...</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function() {
+  if (!window.SERVER_USER) {
+    window.location.href = '/login';
+    return;
+  }
+
+  api.artifacts.mine().then(data => {
+    const items = data.items || [];
+    document.getElementById('stat-total').textContent = items.length;
+    document.getElementById('stat-analyzed').textContent = items.filter(a => a.classification_status === 'analyzed').length;
+    document.getElementById('stat-area').textContent = items.reduce((s, a) => s + (a.area_cm2 || 0), 0).toFixed(1);
+    document.getElementById('stat-measured').textContent = items.filter(a => a.polygon_data).length;
+
+    const grid = document.getElementById('artifacts-grid');
+    if (items.length === 0) {
+      grid.innerHTML = '<div class="alert alert-info">No artifacts yet. <a href="/upload">Upload your first fragment</a> to get started.</div>';
+    } else {
+      grid.innerHTML = items.map(artifactCardHTML).join('');
+    }
+  }).catch(err => {
+    document.getElementById('artifacts-grid').innerHTML = `<div class="alert alert-error">Failed to load: ${err.message}</div>`;
+  });
+})();
+</script>
+{% endblock %}

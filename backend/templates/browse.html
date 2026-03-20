@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Browse{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Browse Artifacts</h1>
+  <p>Explore fragment collections. Use filters to narrow your search.</p>
+</div>
+
+<div class="filter-bar">
+  <input type="search" id="search-input" class="form-input" placeholder="Search artifacts..." style="max-width:260px" onkeydown="if(event.key==='Enter')loadArtifacts()" />
+  <select id="era-filter" class="form-select" onchange="loadArtifacts()">
+    <option value="">All Eras</option>
+    <option>Neolithic</option><option>Bronze Age</option><option>Iron Age</option>
+    <option>Classical</option><option>Medieval</option><option>Modern</option>
+  </select>
+  <select id="material-filter" class="form-select" onchange="loadArtifacts()">
+    <option value="">All Materials</option>
+    <option>Ceramic</option><option>Stone</option><option>Metal</option>
+    <option>Bone</option><option>Glass</option><option>Clay</option><option>Terracotta</option>
+  </select>
+  <span id="total-count" style="font-family:var(--font-mono);color:var(--earth-stone);font-size:0.85rem;margin-left:auto"></span>
+</div>
+
+<div id="artifacts-grid" class="grid grid-3">
+  <div class="loading">Loading...</div>
+</div>
+
+<div class="flex justify-between items-center mt-3" id="pagination" style="display:none">
+  <button class="btn btn-outline btn-sm" id="prev-btn" onclick="changePage(-1)">Previous</button>
+  <span id="page-info" style="font-family:var(--font-mono);color:var(--earth-stone);font-size:0.85rem"></span>
+  <button class="btn btn-outline btn-sm" id="next-btn" onclick="changePage(1)">Next</button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let currentPage = 1;
+let totalItems = 0;
+
+async function loadArtifacts() {
+  currentPage = 1;
+  const grid = document.getElementById('artifacts-grid');
+  grid.innerHTML = '<div class="loading">Loading...</div>';
+
+  const params = {};
+  const q = document.getElementById('search-input').value.trim();
+  const era = document.getElementById('era-filter').value;
+  const mat = document.getElementById('material-filter').value;
+  if (q) params.q = q;
+  if (era) params.era = era;
+  if (mat) params.material = mat;
+  params.page = currentPage;
+
+  try {
+    const data = await api.artifacts.list(params);
+    totalItems = data.total || 0;
+    const items = data.items || [];
+    document.getElementById('total-count').textContent = `${totalItems} artifact${totalItems !== 1 ? 's' : ''} found`;
+
+    if (items.length === 0) {
+      grid.innerHTML = '<div class="alert alert-info">No artifacts found matching your criteria.</div>';
+      document.getElementById('pagination').style.display = 'none';
+    } else {
+      grid.innerHTML = items.map(artifactCardHTML).join('');
+      document.getElementById('pagination').style.display = 'flex';
+      updatePagination();
+    }
+  } catch (err) {
+    grid.innerHTML = `<div class="alert alert-error">Failed to load: ${err.message}</div>`;
+  }
+}
+
+function updatePagination() {
+  document.getElementById('page-info').textContent = `Page ${currentPage}`;
+  document.getElementById('prev-btn').disabled = currentPage <= 1;
+  document.getElementById('next-btn').disabled = currentItems.length < 20;
+}
+
+let currentItems = [];
+async function changePage(delta) {
+  currentPage += delta;
+  const grid = document.getElementById('artifacts-grid');
+  grid.innerHTML = '<div class="loading">Loading...</div>';
+
+  const params = {};
+  const q = document.getElementById('search-input').value.trim();
+  const era = document.getElementById('era-filter').value;
+  const mat = document.getElementById('material-filter').value;
+  if (q) params.q = q;
+  if (era) params.era = era;
+  if (mat) params.material = mat;
+  params.page = currentPage;
+
+  try {
+    const data = await api.artifacts.list(params);
+    currentItems = data.items || [];
+    grid.innerHTML = currentItems.map(artifactCardHTML).join('');
+    updatePagination();
+  } catch (err) {
+    grid.innerHTML = `<div class="alert alert-error">Failed: ${err.message}</div>`;
+  }
+}
+
+loadArtifacts();
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Join FlintAI</h1>
+    <div class="subtitle">Create your archaeologist account</div>
+    <div id="error-msg" class="alert alert-error" style="display:none"></div>
+    <form id="register-form" onsubmit="handleRegister(event)">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="username" class="form-input" required minlength="3" autofocus />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="email" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" class="form-input" required />
+        <div class="form-hint">8+ chars, upper, lower, digit required</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Institution (optional)</label>
+        <input type="text" id="institution" class="form-input" />
+      </div>
+      <button type="submit" id="submit-btn" class="btn btn-primary btn-full">Create Account</button>
+    </form>
+    <div class="form-footer">
+      Already have an account? <a href="/login">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function handleRegister(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const err = document.getElementById('error-msg');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
+  try {
+    await api.auth.register({
+      username: document.getElementById('username').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      institution: document.getElementById('institution').value.trim(),
+    });
+    showAlert('Account created! Please sign in.', 'success');
+    setTimeout(() => window.location.href = '/login', 1000);
+  } catch (err) {
+    const errEl = document.getElementById('error-msg');
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create Account';
+  }
+}
+</script>
+{% endblock %}

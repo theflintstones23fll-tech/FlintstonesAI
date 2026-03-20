@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Collections{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Collections</h1>
+  <p>Organize your artifacts into named collections</p>
+</div>
+
+<div class="flex justify-between items-center mb-2">
+  <button class="btn btn-primary" id="toggle-form-btn" onclick="toggleForm()">+ New Collection</button>
+</div>
+
+<div id="create-form" class="card" style="padding:1.5rem;margin-bottom:1.5rem;display:none">
+  <h3 style="font-family:var(--font-display);color:var(--earth-brown);margin-bottom:1rem">New Collection</h3>
+  <div id="form-error" class="alert alert-error" style="display:none"></div>
+  <form onsubmit="handleCreate(event)">
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" id="col-name" class="form-input" required placeholder="e.g., Roman Pottery Finds" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea id="col-desc" class="form-textarea" placeholder="Describe this collection..."></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div class="form-group">
+        <label class="form-label">Era</label>
+        <input type="text" id="col-era" class="form-input" placeholder="e.g., Classical" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Period</label>
+        <input type="text" id="col-period" class="form-input" placeholder="e.g., Middle" />
+      </div>
+    </div>
+    <button type="submit" id="create-btn" class="btn btn-primary">Create Collection</button>
+  </form>
+</div>
+
+<div id="collections-grid" class="grid grid-3">
+  <div class="loading">Loading...</div>
+</div>
+
+<div id="collection-detail" style="display:none;margin-top:2rem">
+  <button class="btn btn-outline btn-sm mb-2" onclick="closeDetail()">Back to Collections</button>
+  <h3 id="detail-title" style="font-family:var(--font-display);color:var(--earth-brown);margin-bottom:1rem"></h3>
+  <div id="detail-artifacts" class="grid grid-4"></div>
+
+  <div style="margin-top:1.5rem">
+    <h4 style="font-family:var(--font-display);color:var(--earth-brown);margin-bottom:0.8rem">Add Artifact</h4>
+    <div id="add-artifacts-list" class="grid grid-4"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let collections = [];
+let viewCollectionId = null;
+
+(async function() {
+  if (!window.SERVER_USER) {
+    window.location.href = '/login';
+    return;
+  }
+  try {
+    const data = await api.collections.list({ mine: 'true' });
+    collections = data.items || [];
+    renderCollections();
+  } catch (err) {
+    document.getElementById('collections-grid').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+  }
+})();
+
+function renderCollections() {
+  const grid = document.getElementById('collections-grid');
+  if (collections.length === 0) {
+    grid.innerHTML = '<div class="alert alert-info">No collections yet. Create one to organize your artifacts.</div>';
+    return;
+  }
+  grid.innerHTML = collections.map(c => `
+    <div class="collection-card">
+      <h3>${c.name}</h3>
+      ${c.description ? `<p>${c.description}</p>` : ''}
+      <div class="count">${c.artifact_count} artifact${c.artifact_count !== 1 ? 's' : ''}</div>
+      ${c.era ? `<div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--earth-stone);margin-top:0.3rem">${c.era} / ${c.period || ''}</div>` : ''}
+      <div class="flex gap-1 mt-2">
+        <button class="btn btn-sm btn-secondary" style="font-size:0.75rem;padding:0.2rem 0.6rem" onclick="openDetail('${c.id}')">View</button>
+        <button class="btn btn-sm btn-danger" style="font-size:0.75rem;padding:0.2rem 0.6rem" onclick="deleteCollection('${c.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleForm() {
+  const form = document.getElementById('create-form');
+  const btn = document.getElementById('toggle-form-btn');
+  if (form.style.display === 'none') {
+    form.style.display = 'block';
+    btn.textContent = 'Cancel';
+  } else {
+    form.style.display = 'none';
+    btn.textContent = '+ New Collection';
+  }
+}
+
+async function handleCreate(e) {
+  e.preventDefault();
+  const btn = document.getElementById('create-btn');
+  const err = document.getElementById('form-error');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+  try {
+    await api.collections.create({
+      name: document.getElementById('col-name').value.trim(),
+      description: document.getElementById('col-desc').value.trim(),
+      era: document.getElementById('col-era').value.trim(),
+      period: document.getElementById('col-period').value.trim(),
+    });
+    showAlert('Collection created!', 'success');
+    toggleForm();
+    const data = await api.collections.list({ mine: 'true' });
+    collections = data.items || [];
+    renderCollections();
+  } catch (err) {
+    err.textContent = err.message;
+    err.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Create Collection';
+}
+
+async function deleteCollection(id) {
+  if (!confirm('Delete this collection?')) return;
+  try {
+    await api.collections.delete(id);
+    collections = collections.filter(c => c.id !== id);
+    renderCollections();
+  } catch (err) { showAlert(err.message, 'error'); }
+}
+
+async function openDetail(id) {
+  viewCollectionId = id;
+  document.getElementById('collections-grid').style.display = 'none';
+  const detail = document.getElementById('collection-detail');
+  detail.style.display = 'block';
+  try {
+    const col = await api.collections.get(id);
+    document.getElementById('detail-title').textContent = col.name;
+
+    const myArtifacts = (await api.artifacts.mine()).items || [];
+    const colArtifactIds = new Set((col.artifacts || []).map(a => a.id));
+
+    const inCollection = col.artifacts || [];
+    document.getElementById('detail-artifacts').innerHTML = inCollection.length === 0
+      ? '<div class="alert alert-info">No artifacts in this collection yet.</div>'
+      : inCollection.map(a => `
+        <div class="card">
+          <a href="/artifact/${a.id}">
+            <img class="card-img" src="${a.thumbnail_url || a.image_url}" alt="${a.name}" onerror="this.style.display='none'" />
+          </a>
+          <div class="card-body">
+            <div class="card-title">${a.name}</div>
+          </div>
+        </div>`).join('');
+
+    const toAdd = myArtifacts.filter(a => !colArtifactIds.has(a.id));
+    document.getElementById('add-artifacts-list').innerHTML = toAdd.length === 0
+      ? '<div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--earth-stone)">All your artifacts are already in this collection.</div>'
+      : toAdd.map(a => `
+        <div class="card" style="cursor:pointer" onclick="addToCollection('${id}','${a.id}')">
+          <img class="card-img" src="${a.thumbnail_url || a.image_url}" alt="${a.name}" onerror="this.style.display='none'" />
+          <div class="card-body">
+            <div class="card-title" style="font-size:0.9rem">${a.name}</div>
+          </div>
+        </div>`).join('');
+  } catch (err) {
+    showAlert(err.message, 'error');
+  }
+}
+
+async function addToCollection(colId, artId) {
+  try {
+    await api.collections.addArtifact(colId, artId);
+    openDetail(colId);
+  } catch (err) { showAlert(err.message, 'error'); }
+}
+
+function closeDetail() {
+  viewCollectionId = null;
+  document.getElementById('collection-detail').style.display = 'none';
+  document.getElementById('collections-grid').style.display = 'grid';
+}
+</script>
+{% endblock %}

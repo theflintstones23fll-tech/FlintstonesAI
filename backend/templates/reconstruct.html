@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Reconstruct{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Reconstruction Studio</h1>
+  <p>Select fragments and reconstruct a complete artifact</p>
+</div>
+
+<div class="reconstruct-layout">
+  <div>
+    <h3 style="font-family:var(--font-display);color:var(--earth-brown);margin-bottom:1rem">Select Fragments (<span id="selected-count">0</span>)</h3>
+
+    <div id="fragments-list">
+      <div class="loading">Loading...</div>
+    </div>
+
+    <div id="action-buttons" class="mt-2 flex gap-1" style="display:none">
+      <button class="btn btn-secondary" id="compare-btn" onclick="runComparisons()" disabled>Compare Selected</button>
+      <button class="btn btn-primary" id="reconstruct-btn" onclick="runReconstruct()" disabled>Reconstruct</button>
+    </div>
+
+    <div id="select-hint" class="alert alert-info mt-2" style="display:none">Select at least 2 fragments to compare or reconstruct.</div>
+  </div>
+
+  <div>
+    <div id="error-section"></div>
+
+    <div id="comparisons-section" style="display:none;margin-bottom:1.5rem">
+      <h3 style="font-family:var(--font-display);color:var(--earth-brown);margin-bottom:0.8rem">Pairwise Comparison Scores</h3>
+      <p style="font-family:var(--font-mono);font-size:0.8rem;color:var(--earth-stone);margin-bottom:1rem">&lt; 0.15 = excellent, 0.15-0.35 = good, &gt; 0.35 = poor match.</p>
+      <table class="compare-table">
+        <thead><tr><th>Fragment A</th><th>Fragment B</th><th>Score</th><th>Type</th></tr></thead>
+        <tbody id="comparisons-body"></tbody>
+      </table>
+    </div>
+
+    <div class="reconstruct-preview" id="reconstruct-preview">
+      <div id="preview-placeholder" style="font-family:var(--font-mono);color:var(--earth-stone);font-size:1.2rem">
+        Select 2 or more fragments
+      </div>
+      <div id="preview-ready" style="display:none">
+        <div style="font-family:var(--font-display);color:var(--earth-tan);font-size:1.5rem">Ready to Reconstruct</div>
+        <div style="font-family:var(--font-mono);color:var(--earth-stone);font-size:0.85rem">Click "Start Reconstruction" below</div>
+      </div>
+      <div id="preview-result" style="display:none">
+        <img id="result-img" src="" alt="Reconstruction" />
+        <div style="margin-top:0.5rem">
+          <p style="font-family:var(--font-display);color:var(--earth-brown)">Reconstruction Complete</p>
+          <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--earth-stone)" id="result-count"></p>
+          <a id="result-download" href="" download class="btn btn-secondary mt-2">Download Image</a>
+        </div>
+      </div>
+      <div id="preview-processing" style="display:none">
+        <div class="loading">Processing...</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const selected = new Set();
+
+(async function() {
+  if (!window.SERVER_USER) {
+    window.location.href = '/login';
+    return;
+  }
+  try {
+    const data = await api.artifacts.mine();
+    const items = data.items || [];
+    const list = document.getElementById('fragments-list');
+    if (items.length === 0) {
+      list.innerHTML = '<div class="alert alert-info"><a href="/upload">Upload fragments</a> to get started.</div>';
+      return;
+    }
+    window.allArtifacts = items;
+    list.innerHTML = items.map(a => `
+      <div class="fragment-item" id="frag-${a.id}" onclick="toggleFragment('${a.id}')">
+        <img src="${a.thumbnail_url || a.image_url}" alt="${a.name}" onerror="this.style.display='none'" />
+        <div class="fragment-info">
+          <div class="name">${a.name}</div>
+          <div class="size">${formatDim(a.width_cm, a.height_cm, a.area_cm2)}</div>
+        </div>
+        <div class="frag-check" style="color:var(--gold);font-size:1.2rem;display:none">&#10003;</div>
+      </div>`).join('');
+  } catch (err) {
+    document.getElementById('fragments-list').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+  }
+})();
+
+function toggleFragment(id) {
+  const el = document.getElementById(`frag-${id}`);
+  if (selected.has(id)) {
+    selected.delete(id);
+    el.classList.remove('selected');
+    el.querySelector('.frag-check').style.display = 'none';
+  } else {
+    selected.add(id);
+    el.classList.add('selected');
+    el.querySelector('.frag-check').style.display = 'block';
+  }
+  updateSelection();
+}
+
+function updateSelection() {
+  const count = selected.size;
+  document.getElementById('selected-count').textContent = count;
+  const actions = document.getElementById('action-buttons');
+  const hint = document.getElementById('select-hint');
+  const placeholder = document.getElementById('preview-placeholder');
+  const ready = document.getElementById('preview-ready');
+  const compareBtn = document.getElementById('compare-btn');
+  const reconBtn = document.getElementById('reconstruct-btn');
+
+  if (count >= 2) {
+    actions.style.display = 'flex';
+    hint.style.display = 'none';
+    placeholder.style.display = 'none';
+    ready.style.display = 'block';
+    compareBtn.disabled = false;
+    reconBtn.disabled = false;
+  } else if (count > 0) {
+    actions.style.display = 'flex';
+    hint.style.display = 'block';
+    placeholder.style.display = 'none';
+    ready.style.display = 'none';
+    compareBtn.disabled = true;
+    reconBtn.disabled = true;
+  } else {
+    actions.style.display = 'none';
+    hint.style.display = 'none';
+    placeholder.style.display = 'block';
+    ready.style.display = 'none';
+  }
+}
+
+async function runComparisons() {
+  if (selected.size < 2) return;
+  document.getElementById('compare-btn').disabled = true;
+  document.getElementById('compare-btn').textContent = 'Comparing...';
+  try {
+    const data = await api.artifacts.compareBatch([...selected]);
+    const comps = data.comparisons || [];
+    document.getElementById('comparisons-section').style.display = 'block';
+    document.getElementById('comparisons-body').innerHTML = comps.map(c => `
+      <tr>
+        <td>${c.artifact_a.name}</td>
+        <td>${c.artifact_b.name}</td>
+        <td><span class="match-score ${getScoreClass(c.score)}">${formatScore(c.score)}</span></td>
+        <td style="color:var(--earth-stone);font-size:0.75rem">${c.match_type}</td>
+      </tr>`).join('');
+  } catch (err) {
+    showAlert(err.message, 'error');
+  }
+  document.getElementById('compare-btn').disabled = false;
+  document.getElementById('compare-btn').textContent = 'Compare Selected';
+}
+
+async function runReconstruct() {
+  if (selected.size < 2) return;
+  document.getElementById('reconstruct-btn').disabled = true;
+  document.getElementById('reconstruct-btn').textContent = 'Reconstructing...';
+  document.getElementById('preview-ready').style.display = 'none';
+  document.getElementById('preview-placeholder').style.display = 'none';
+  document.getElementById('preview-processing').style.display = 'block';
+  document.getElementById('preview-result').style.display = 'none';
+
+  try {
+    const data = await api.reconstruct([...selected]);
+    document.getElementById('preview-processing').style.display = 'none';
+    document.getElementById('preview-result').style.display = 'block';
+    document.getElementById('result-img').src = data.reconstruction_url;
+    document.getElementById('result-count').textContent = `${data.artifact_count} fragments assembled`;
+    document.getElementById('result-download').href = data.reconstruction_url;
+  } catch (err) {
+    showAlert(err.message, 'error');
+    document.getElementById('preview-processing').style.display = 'none';
+    document.getElementById('preview-ready').style.display = 'block';
+  }
+  document.getElementById('reconstruct-btn').disabled = false;
+  document.getElementById('reconstruct-btn').textContent = 'Reconstruct';
+}
+</script>
+{% endblock %}

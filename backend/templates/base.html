@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}FlintAI{% endblock %} - Artifact Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rye&family=Crimson+Pro:wght@400;600&family=Special+Elite&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="/" class="navbar-brand">Flint<span>AI</span></a>
+      {% if user %}
+      <ul class="navbar-links">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/upload">Upload</a></li>
+        <li><a href="/browse">Browse</a></li>
+        <li><a href="/collections">Collections</a></li>
+        <li><a href="/reconstruct">Reconstruct</a></li>
+        <li><button class="btn btn-outline btn-sm" onclick="logout()">Logout</button></li>
+      </ul>
+      {% else %}
+      <ul class="navbar-links">
+        <li><a href="/login" class="btn btn-gold btn-sm">Login</a></li>
+      </ul>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div id="alert-container"></div>
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+  window.SERVER_USER = {{ user | tojson | safe }};
+  (function() {
+    var m = document.cookie.match(/(?:^| )flintai_token=([^;]+)/);
+    if (m) localStorage.setItem('flintai_token', m[1]);
+  })();
+  </script>
+  <script src="/static/js/client.js"></script>
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

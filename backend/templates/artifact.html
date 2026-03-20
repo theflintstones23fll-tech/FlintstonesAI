@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}{{ artifact.name if artifact else 'Artifact' }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 id="artifact-name">Loading...</h1>
+</div>
+
+<div id="error-msg" class="alert alert-error" style="display:none"></div>
+
+<div class="artifact-detail" id="artifact-body" style="display:none">
+  <div class="artifact-image-section">
+    <img id="artifact-img" src="" alt="" />
+    <div class="mt-2 flex gap-1">
+      <button class="btn btn-secondary btn-sm" id="find-similar-btn" onclick="findSimilar()">Find Similar</button>
+      <button class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteArtifact()">Delete</button>
+    </div>
+  </div>
+
+  <div class="artifact-info">
+    <p id="artifact-desc" style="font-style:italic;color:var(--earth-stone);margin-bottom:1rem"></p>
+
+    <div class="info-grid">
+      <div class="info-item"><span class="label">Era:</span> <span class="value" id="info-era">—</span></div>
+      <div class="info-item"><span class="label">Period:</span> <span class="value" id="info-period">—</span></div>
+      <div class="info-item"><span class="label">Material:</span> <span class="value" id="info-material">—</span></div>
+      <div class="info-item"><span class="label">Region:</span> <span class="value" id="info-region">—</span></div>
+      <div class="info-item"><span class="label">Width:</span> <span class="value" id="info-width">—</span></div>
+      <div class="info-item"><span class="label">Height:</span> <span class="value" id="info-height">—</span></div>
+      <div class="info-item"><span class="label">Area:</span> <span class="value" id="info-area">—</span></div>
+      <div class="info-item"><span class="label">Status:</span> <span class="value" id="info-status">—</span></div>
+      <div class="info-item"><span class="label">Scale Bar:</span> <span class="value" id="info-scale">—</span></div>
+    </div>
+
+    <div id="color-section" class="mt-2" style="display:none">
+      <div class="form-label">Dominant Colors</div>
+      <div class="color-swatches" id="color-swatches"></div>
+    </div>
+  </div>
+</div>
+
+<div id="matches-section" style="display:none;margin-top:2rem">
+  <h2 style="font-family:var(--font-display);color:var(--earth-brown);margin-bottom:1rem">Similar Fragments</h2>
+  <p style="font-family:var(--font-mono);font-size:0.8rem;color:var(--earth-stone);margin-bottom:1rem">Lower scores = better shape match. Score &lt; 0.15 is excellent.</p>
+  <div id="matches-list"></div>
+</div>
+
+<div id="loading-section" class="loading">Loading artifact...</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const artifactId = window.location.pathname.split('/').pop();
+let artifactData = null;
+
+(async function() {
+  if (!window.SERVER_USER) {
+    window.location.href = '/login';
+    return;
+  }
+  try {
+    artifactData = await api.artifacts.get(artifactId, { include_polygon: 'true' });
+    renderArtifact(artifactData);
+  } catch (err) {
+    document.getElementById('error-msg').textContent = err.message;
+    document.getElementById('error-msg').style.display = 'block';
+    document.getElementById('loading-section').style.display = 'none';
+  }
+})();
+
+function renderArtifact(a) {
+  document.title = a.name + ' - FlintAI';
+  document.getElementById('artifact-name').textContent = a.name;
+  document.getElementById('artifact-img').src = a.thumbnail_url || a.image_url || '';
+  document.getElementById('artifact-desc').textContent = a.description || '';
+  document.getElementById('info-era').textContent = a.era || '—';
+  document.getElementById('info-period').textContent = a.period || '—';
+  document.getElementById('info-material').textContent = a.material || '—';
+  document.getElementById('info-region').textContent = a.region || '—';
+  document.getElementById('info-width').textContent = a.width_cm ? `${a.width_cm.toFixed(2)} cm` : '—';
+  document.getElementById('info-height').textContent = a.height_cm ? `${a.height_cm.toFixed(2)} cm` : '—';
+  document.getElementById('info-area').textContent = a.area_cm2 ? `${a.area_cm2.toFixed(2)} cm²` : '—';
+  document.getElementById('info-status').textContent = a.classification_status || '—';
+  document.getElementById('info-scale').textContent = `${a.meter_size_cm} cm`;
+
+  const raw = a.dominant_colors;
+  const colors = (raw && Array.isArray(raw[0])) ? raw : (raw ? [raw] : []);
+  if (colors.length > 0) {
+    document.getElementById('color-section').style.display = 'block';
+    document.getElementById('color-swatches').innerHTML = colors.map(c =>
+      `<span class="color-swatch" style="background:rgb(${c[0]},${c[1]},${c[2]})" title="RGB(${c[0]},${c[1]},${c[2]})"></span>`
+    ).join('');
+  }
+
+  document.getElementById('loading-section').style.display = 'none';
+  document.getElementById('artifact-body').style.display = 'grid';
+}
+
+async function findSimilar() {
+  const btn = document.getElementById('find-similar-btn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  try {
+    const data = await api.artifacts.match(artifactId, 10);
+    const matches = data.matches || [];
+    const section = document.getElementById('matches-section');
+    section.style.display = 'block';
+    const list = document.getElementById('matches-list');
+    if (matches.length === 0) {
+      list.innerHTML = '<div class="alert alert-info">No similar fragments found.</div>';
+    } else {
+      list.innerHTML = matches.map(m => `
+        <div class="match-item">
+          <a href="/artifact/${m.artifact.id}">
+            <img src="${m.artifact.thumbnail_url || m.artifact.image_url}" alt="${m.artifact.name}" onerror="this.style.display='none'" />
+          </a>
+          <div class="match-info">
+            <a href="/artifact/${m.artifact.id}" class="name">${m.artifact.name}</a>
+            <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--earth-stone)">${m.artifact.era || ''} / ${m.artifact.material || ''}</div>
+          </div>
+          <div>
+            <div class="match-score ${getScoreClass(m.score)}">${formatScore(m.score)}</div>
+            <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--earth-stone);text-align:center">score</div>
+          </div>
+        </div>`).join('');
+    }
+  } catch (err) {
+    showAlert(err.message, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Find Similar';
+}
+
+async function deleteArtifact() {
+  if (!confirm('Delete this artifact? This cannot be undone.')) return;
+  try {
+    await api.artifacts.delete(artifactId);
+    showAlert('Artifact deleted.', 'success');
+    setTimeout(() => window.location.href = '/', 1000);
+  } catch (err) {
+    showAlert(err.message, 'error');
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+flask>=3.0.0
+flask-sqlalchemy>=3.1.0
+flask-jwt-extended>=4.6.0
+bcrypt>=4.0.0
+pillow>=10.0.0
+gunicorn>=21.0.0
+psycopg2-binary>=2.9.0
+opencv-python-headless>=4.9.0
+numpy>=1.26.0
+scipy>=1.11.0
+matplotlib>=3.7.0

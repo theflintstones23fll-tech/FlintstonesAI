@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Upload{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Upload Fragment</h1>
+  <p>Add a new artifact to your collection. Include the meter/scale bar in the image for accurate measurements.</p>
+</div>
+
+<div id="error-msg" class="alert alert-error" style="display:none"></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+  <div>
+    <form id="upload-form" onsubmit="handleUpload(event)">
+      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="icon">+</div>
+        <div class="upload-text" id="drop-text">Drop image here or click to browse</div>
+        <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileSelect(this)" />
+      </div>
+
+      <div class="upload-preview" id="preview-container" style="display:none">
+        <img id="preview-img" src="" alt="Preview" />
+      </div>
+
+      <div class="form-group mt-2">
+        <label class="form-label">Fragment Name</label>
+        <input type="text" id="name" class="form-input" placeholder="e.g., Pottery Sherd #42" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="description" class="form-textarea" placeholder="Describe the fragment..."></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label">Era</label>
+          <select id="era" class="form-select">
+            <option value="">Select era</option>
+            <option>Neolithic</option><option>Bronze Age</option><option>Iron Age</option>
+            <option>Classical</option><option>Medieval</option><option>Modern</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Material</label>
+          <select id="material" class="form-select">
+            <option value="">Select material</option>
+            <option>Ceramic</option><option>Stone</option><option>Metal</option>
+            <option>Bone</option><option>Glass</option><option>Clay</option>
+            <option>Terracotta</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Period</label>
+          <select id="period" class="form-select">
+            <option value="">Select period</option>
+            <option>Early</option><option>Middle</option><option>Late</option><option>Unknown</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Region</label>
+          <input type="text" id="region" class="form-input" placeholder="e.g., Near East" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Meter/Scale Bar Length (cm)</label>
+        <input type="number" id="meter_size_cm" class="form-input" value="8.0" min="0.1" max="100" step="0.1" />
+        <div class="form-hint">Measure the scale bar in your image. Default: 8.0 cm</div>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-family:var(--font-mono);font-size:0.9rem;color:var(--earth-brown)">
+          <input type="checkbox" id="multi_mode" style="width:18px;height:18px" />
+          <span>Multiple artifacts in image</span>
+        </label>
+        <div class="form-hint">Enable if the image contains more than one artifact. Each will be saved separately.</div>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn btn-primary btn-full">Upload & Analyze Fragment</button>
+    </form>
+  </div>
+
+  <div>
+    <div class="alert alert-info">
+      <strong>Tips for best results:</strong>
+      <ul style="margin-top:0.5rem;padding-left:1.2rem">
+        <li>Include the full meter/scale bar in the frame</li>
+        <li>Ensure good lighting and contrast</li>
+        <li>Capture fragments on a plain background</li>
+        <li>Higher resolution images produce better measurements</li>
+        <li>The system will automatically detect and measure the artifact shape</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let selectedFile = null;
+
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) setFile(f);
+});
+
+function handleFileSelect(input) {
+  const f = input.files[0];
+  if (f) setFile(f);
+}
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('drop-text').textContent = f.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-container').style.display = 'block';
+  };
+  reader.readAsDataURL(f);
+}
+
+async function handleUpload(e) {
+  e.preventDefault();
+  if (!selectedFile) {
+    showAlert('Please select an image.', 'error');
+    return;
+  }
+  const btn = document.getElementById('submit-btn');
+  const err = document.getElementById('error-msg');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+
+  const fd = new FormData();
+  fd.append('image', selectedFile);
+  ['name', 'description', 'era', 'period', 'region', 'material'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) fd.append(id, el.value);
+  });
+  fd.append('meter_size_cm', document.getElementById('meter_size_cm').value);
+  fd.append('multi', document.getElementById('multi_mode').checked ? 'true' : 'false');
+
+  try {
+    const data = await api.artifacts.upload(fd);
+    if (data.error) throw new Error(data.error);
+    showAlert('Upload complete! Redirecting...', 'success');
+    if (data.ids && data.ids.length > 1) {
+      setTimeout(() => window.location.href = '/dashboard', 1000);
+    } else {
+      const id = data.id || (data.ids && data.ids[0]);
+      setTimeout(() => window.location.href = `/artifact/${id}`, 1000);
+    }
+  } catch (err) {
+    const errEl = document.getElementById('error-msg');
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Upload & Analyze';
+  }
+}
+</script>
+{% endblock %}
