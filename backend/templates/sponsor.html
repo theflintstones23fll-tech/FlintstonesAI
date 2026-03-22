@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Sponsor Us - The Flintstones{% endblock %}
+{% block content %}
+
+<div class="sponsor-page">
+  <div class="sponsor-hero">
+    <h1>Sponsor The Flintstones</h1>
+    <p class="sponsor-tagline">FLL National Champions 2025-2026 - Representing Turkey at the FIRST World Festival in Houston</p>
+  </div>
+
+  <div class="sponsor-body">
+    <div class="sponsor-story">
+      <h2>Our Journey</h2>
+      <p>The Flintstones were founded under Ozel Cakabey Okullari for the 2025-2026 season (FLL Unearthed). We placed <strong>3rd at the Aegean Regional Tournament</strong>, earned a spot at Nationals, and then <strong>became Turkey National Champions</strong> - beating 74 teams from 21 cities across Turkey.</p>
+      <p>Now we represent Turkey at the <strong>FIRST World Festival in Houston, USA</strong> - the world's largest science and technology tournament for youth, bringing together over 45 countries and 110,000+ team members.</p>
+      <p>Our coach Oguzhan Kose has guided teams to the Asia-Pacific World Championship over 16 years. Our 10-member team of 9th and 10th graders is almost entirely scholarship-funded - your sponsorship directly enables us to compete on the world stage.</p>
+    </div>
+
+    <div class="sponsor-benefits">
+      <h2>What Sponsorship Provides</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">Jersey Visibility</div>
+          <h3>Team Jersey</h3>
+          <p>Your company logo on our competition jerseys, worn on the world stage in Houston, Texas in front of thousands of spectators and broadcast to hundreds of thousands online.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">Website and Social Media</div>
+          <h3>Digital Presence</h3>
+          <p>Featured with your logo on our team website and regular posts on our social media channels reaching teams and families across Turkey and internationally.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">Brand Content</div>
+          <h3>Promotion</h3>
+          <p>Promotional content and thank-you posts about your company published throughout the season on all our platforms.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">National Pride</div>
+          <h3>Turkey at Worlds</h3>
+          <p>Be part of Turkey's international STEM representation at the world's biggest robotics event. Your brand associated with youth innovation and excellence.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sponsor-contact">
+      <h2>Get in Touch</h2>
+      <p>Ready to join us on this journey? Every contribution makes a difference.</p>
+      <div class="contact-grid">
+        <div class="contact-card">
+          <div class="contact-icon">Email</div>
+          <a href="mailto:theflintstones23fll@gmail.com">theflintstones23fll@gmail.com</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">Phone</div>
+          <a href="tel:+905342562457">+90 534 256 24 57</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">Instagram</div>
+          <a href="https://instagram.com/theflintstones_fll" target="_blank">@theflintstones_fll</a>
+        </div>
+      </div>
+      <div class="contact-team">
+        <p><strong>Coach:</strong> Oguzhan Kose</p>
+        <p><strong>Team:</strong> The Flintstones - FLL Unearthed 2025-2026</p>
+        <p><strong>School:</strong> Ozel Cakabey Okullari</p>
+      </div>
+    </div>
+
+    <div class="sponsor-team-photo">
+      <img src="/static/fll_images/team_photo.jpg" alt="The Flintstones at the National Tournament" />
+      <div class="photo-caption">FLL Turkey National Champions 2025-2026 - 74 Teams, 21 Cities</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block styles %}
+<style>
+.sponsor-page { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+.sponsor-hero { text-align: center; padding: 3rem 1rem; background: linear-gradient(rgba(20,15,5,0.8), rgba(20,15,5,0.8)), url('/static/fll_images/team_photo.jpg') center/cover no-repeat; border-radius: var(--radius); margin: 1rem 0; color: var(--earth-cream); }
+.sponsor-hero h1 { font-family: var(--font-display); color: var(--earth-gold); font-size: 2.5rem; margin: 0 0 0.5rem; }
+.sponsor-tagline { font-family: var(--font-mono); font-size: 0.9rem; margin: 0; color: var(--earth-sand); }
+
+.sponsor-body { padding: 2rem 0; }
+.sponsor-story, .sponsor-benefits, .sponsor-tiers, .sponsor-contact { margin-bottom: 3rem; }
+.sponsor-story h2, .sponsor-benefits h2, .sponsor-tiers h2, .sponsor-contact h2 {
+  font-family: var(--font-display); color: var(--earth-brown); font-size: 1.5rem; margin: 0 0 1rem; border-bottom: 2px solid var(--earth-sand); padding-bottom: 0.5rem; }
+.sponsor-story p { font-size: 0.9rem; color: var(--earth-stone); line-height: 1.7; margin: 0 0 1rem; }
+
+.benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.benefit-card { background: #fff; border: 1px solid var(--earth-sand); border-radius: var(--radius); padding: 1.2rem; }
+.benefit-icon { font-family: var(--font-display); color: var(--earth-gold); font-size: 1rem; margin-bottom: 0.5rem; }
+.benefit-card h3 { font-family: var(--font-display); color: var(--earth-brown); font-size: 1rem; margin: 0 0 0.5rem; }
+.benefit-card p { font-size: 0.8rem; color: var(--earth-stone); margin: 0; line-height: 1.5; }
+
+.tiers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
+.tier-card { background: #fff; border: 1px solid var(--earth-sand); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+.tier-featured { border-color: var(--earth-gold); box-shadow: 0 0 0 2px var(--earth-gold); }
+.tier-name { font-family: var(--font-display); color: var(--earth-brown); font-size: 1.1rem; margin-bottom: 0.5rem; }
+.tier-amount { font-family: var(--font-display); color: var(--earth-gold); font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
+.tier-perks { list-style: none; padding: 0; margin: 0; text-align: left; }
+.tier-perks li { font-size: 0.8rem; color: var(--earth-stone); padding: 0.2rem 0; border-bottom: 1px dashed var(--earth-sand); }
+.tier-perks li:last-child { border-bottom: none; }
+.tier-note { font-size: 0.8rem; color: var(--earth-stone); font-style: italic; margin-top: 1rem; text-align: center; }
+
+.contact-grid { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.contact-card { background: #fff; border: 1px solid var(--earth-sand); border-radius: var(--radius); padding: 1rem 1.5rem; flex: 1; min-width: 150px; text-align: center; }
+.contact-icon { font-family: var(--font-display); color: var(--earth-brown); font-size: 0.85rem; margin-bottom: 0.3rem; }
+.contact-card a { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold); text-decoration: none; }
+.contact-card a:hover { color: var(--earth-brown); }
+.contact-team { background: var(--earth-cream); border-radius: var(--radius); padding: 1rem 1.5rem; margin-top: 1rem; }
+.contact-team p { font-size: 0.85rem; color: var(--earth-brown); margin: 0.2rem 0; }
+
+.sponsor-team-photo { text-align: center; margin-top: 2rem; }
+.sponsor-team-photo img { width: 100%; max-width: 700px; border-radius: var(--radius); border: 3px solid var(--earth-sand); }
+.photo-caption { font-family: var(--font-mono); font-size: 0.75rem; color: var(--earth-stone); margin-top: 0.5rem; }
+</style>
+{% endblock %}

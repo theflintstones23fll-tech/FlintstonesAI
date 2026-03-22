@@ -148,12 +148,15 @@ async function handleUpload(e) {
   try {
     const data = await api.artifacts.upload(fd);
     if (data.error) throw new Error(data.error);
-    showAlert('Upload complete! Redirecting...', 'success');
+    btn.disabled = false;
+    btn.textContent = 'Done!';
     if (data.ids && data.ids.length > 1) {
-      setTimeout(() => window.location.href = '/dashboard', 1000);
+      showAlert(`Uploaded ${data.count} artifacts. Redirecting...`, 'success');
+      setTimeout(() => window.location.href = '/dashboard', 2000);
     } else {
       const id = data.id || (data.ids && data.ids[0]);
-      setTimeout(() => window.location.href = `/artifact/${id}`, 1000);
+      showAlert('Upload complete! Redirecting...', 'success');
+      setTimeout(() => window.location.href = `/artifact/${id}`, 2000);
     }
   } catch (err) {
     const errEl = document.getElementById('error-msg');

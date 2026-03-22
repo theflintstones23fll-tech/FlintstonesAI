@@ -2,8 +2,8 @@
 {% block title %}Browse{% endblock %}
 {% block content %}
 <div class="page-header">
-  <h1>Browse Artifacts</h1>
-  <p>Explore fragment collections. Use filters to narrow your search.</p>
+  <h1>My Artifacts</h1>
+  <p>View and manage your artifact fragments.</p>
 </div>
 
 <div class="filter-bar">
@@ -51,7 +51,7 @@ async function loadArtifacts() {
   params.page = currentPage;
 
   try {
-    const data = await api.artifacts.list(params);
+    const data = await api.artifacts.mine();
     totalItems = data.total || 0;
     const items = data.items || [];
     document.getElementById('total-count').textContent = `${totalItems} artifact${totalItems !== 1 ? 's' : ''} found`;

@@ -719,25 +719,20 @@ def find_edge_alignment(contourA, contourB, px_per_cm_A, px_per_cm_B):
     polyA = np.array(get_polygon_from_contour(contourA), dtype=float)
     polyB = np.array(get_polygon_from_contour(contourB), dtype=float)
 
-    # Scale B to A's px/cm
     scale_ratio = px_per_cm_A / px_per_cm_B
     polyB_scaled = polyB * scale_ratio
 
-    # Center both at origin
     centA = polyA.mean(axis=0)
     centB = polyB_scaled.mean(axis=0)
     A_c = polyA - centA
     B_c = polyB_scaled - centB
 
-    # Resample
-    A_rs = resample_polygon(A_c, n=200)
-    B_rs = resample_polygon(B_c, n=200)
+    A_rs = resample_polygon(A_c, n=80)
+    B_rs = resample_polygon(B_c, n=80)
 
-    # Find the matching fracture pair
     match = find_matching_fracture(A_rs, B_rs)
 
     if match is None:
-        # Fallback: just place side by side
         return {
             "rotation": 0.0,
             "translation": np.array([np.max(A_c[:, 0]) - np.min(B_c[:, 0]) + 20, 0.0]),
@@ -746,41 +741,37 @@ def find_edge_alignment(contourA, contourB, px_per_cm_A, px_per_cm_B):
             "centroid_B": centB,
         }
 
-    # --- Compute full-contour rotation ---
-    # match["theta_seg"] aligns normalized segments. We need the real rotation
-    # for the actual (non-normalized) contour.
-    #
-    # The segment normalization scales are scaleA and scaleB.
-    # The PCA-based theta_seg already accounts for the shape alignment.
-    # We need to compute the rotation in real (non-normalized) coordinates.
-
-    # Extract the actual matched segments in real coordinates
     segA_real = extract_sub_contour(A_rs, match["startA"], match["seg_lenA"])
     segB_raw = extract_sub_contour(B_rs, match["startB"], match["seg_lenB"])
-    segB_real = segB_raw[::-1]  # flip to match fracture direction
+    segB_real = segB_raw[::-1]
 
-    # Center both segments
     cA = segA_real.mean(axis=0)
     cB = segB_real.mean(axis=0)
     segA_c = segA_real - cA
     segB_c = segB_real - cB
 
-    # Find the rotation that best aligns B's segment onto A's segment
-    # in real (unscaled) coordinates using Procrustes
-    segA_rs = resample_polygon(segA_c, n=50)
-    segB_rs = resample_polygon(segB_c, n=50)
+    segA_rs = resample_polygon(segA_c, n=40)
+    segB_rs = resample_polygon(segB_c, n=40)
 
     best_theta = 0.0
     best_dist = float("inf")
-    for theta in np.linspace(0, 2 * np.pi, 360):
+    coarse = np.linspace(0, 2 * np.pi, 36)
+    for theta in coarse:
         B_rot = rotate(segB_rs, theta)
         dist = np.sqrt(((segA_rs - B_rot) ** 2).sum(axis=1)).mean()
         if dist < best_dist:
             best_dist = dist
             best_theta = theta
 
-    # Now compute translation:
-    # Rotate B's full contour, then align the fracture segment centers
+    fine_range = 0.35
+    fine = np.linspace(best_theta - fine_range, best_theta + fine_range, 19)
+    for theta in fine:
+        B_rot = rotate(segB_rs, theta)
+        dist = np.sqrt(((segA_rs - B_rot) ** 2).sum(axis=1)).mean()
+        if dist < best_dist:
+            best_dist = dist
+            best_theta = theta
+
     B_full_rot = rotate(B_rs, best_theta)
     segB_center_rot = rotate(cB.reshape(1, 2), best_theta).flatten()
 
@@ -1647,6 +1638,14 @@ def reconstruct_multi_separated(image_paths_meters, output_path=None, artifact_n
 
     n = len(artifacts)
     total_images = len(image_paths_meters)
+    poly_cache = {}
+
+    def get_poly(c):
+        cid = id(c)
+        if cid not in poly_cache:
+            poly_cache[cid] = get_polygon_from_contour(c)
+        return poly_cache[cid]
+
     if n == 0:
         print("Reconstruction failed: no artifacts detected")
         return None
@@ -1827,23 +1826,7 @@ def reconstruct_multi_separated(image_paths_meters, output_path=None, artifact_n
             print(f"  Pair ({i},{j}) worked! Assembly complete.")
             break
     else:
-        print("  All pairs caused too much collision. Placing fragments without constraints.")
-        placed = []
-        for k in range(n):
-            crop = artifacts_sorted[k]['crop']
-            if crop is not None:
-                placed.append({
-                    'artifact': artifacts_sorted[k],
-                    'crop': crop,
-                    'x': float(k * 150),
-                    'y': float(k * 150),
-                    'rotation': 0.0,
-                })
-
-    remaining = []
-
-    if not placed:
-        print("Reconstruction failed: no fragments placed")
+        print("  All pairs caused too much collision. Fragments do not connect.")
         return None
 
     min_cx = min(p['x'] for p in placed)

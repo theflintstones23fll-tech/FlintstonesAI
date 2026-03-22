@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Rye&family=Crimson+Pro:wght@400;600&family=Special+Elite&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/style.css" />
+  {% block styles %}{% endblock %}
 </head>
 <body>
   <nav class="navbar">
@@ -18,15 +19,18 @@
       <a href="/" class="navbar-brand">Flint<span>AI</span></a>
       {% if user %}
       <ul class="navbar-links">
-        <li><a href="/">Dashboard</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
         <li><a href="/upload">Upload</a></li>
         <li><a href="/browse">Browse</a></li>
         <li><a href="/collections">Collections</a></li>
         <li><a href="/reconstruct">Reconstruct</a></li>
+        <li><a href="/sponsor" class="btn btn-sponsor-nav btn-sm">Sponsor Us</a></li>
         <li><button class="btn btn-outline btn-sm" onclick="logout()">Logout</button></li>
       </ul>
       {% else %}
       <ul class="navbar-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/sponsor" class="btn btn-sponsor-nav btn-sm">Sponsor Us</a></li>
         <li><a href="/login" class="btn btn-gold btn-sm">Login</a></li>
       </ul>
       {% endif %}

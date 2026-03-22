@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block title %}FlintAI - Archaeological Fragment Analysis{% endblock %}
+{% block content %}
+
+<div class="home-hero">
+  <div class="hero-content">
+    <div class="hero-badge">FLL National Champions 2025-2026</div>
+    <h1 class="hero-title">The Flintstones</h1>
+    <p class="hero-tagline">First Lego League - Unearthed Season</p>
+    <p class="hero-desc">FlintAI - AI-powered archaeological fragment matching and reconstruction</p>
+    <div class="hero-actions">
+      <a href="#project" class="btn btn-primary">Our Project</a>
+      <a href="/login" class="btn btn-secondary">Login</a>
+    </div>
+  </div>
+</div>
+
+<div class="home-body">
+
+  <!-- FLL Section -->
+  <section class="home-section" id="fll">
+    <h2>What is First Lego League?</h2>
+    <div class="fll-cards">
+      <div class="fll-card">
+        <div class="fll-icon">Robot Game</div>
+        <p>Teams design, build and program autonomous LEGO robots to complete missions on a themed playing field in 2.5 minutes.</p>
+      </div>
+      <div class="fll-card">
+        <div class="fll-icon">Innovation Project</div>
+        <p>Teams identify a real-world problem related to the season theme, research it deeply, and develop an innovative solution.</p>
+      </div>
+      <div class="fll-card">
+        <div class="fll-icon">Core Values</div>
+        <p>Gracious Professionalism and Coopertition are central - teams compete and cooperate, discovering that helping others is the key to success.</p>
+      </div>
+      <div class="fll-card">
+        <div class="fll-icon">Unearthed Season</div>
+        <p>In 2025-2026, FLL teams trace the footsteps of ancient civilizations - uncovering secrets of archaeological processes and humanity's earliest builders.</p>
+      </div>
+    </div>
+    <div class="fll-stats">
+      <div class="stat"><span class="stat-num">45+</span><span class="stat-label">Countries</span></div>
+      <div class="stat"><span class="stat-num">110K+</span><span class="stat-label">Teams</span></div>
+      <div class="stat"><span class="stat-num">15</span><span class="stat-label">Missions</span></div>
+      <div class="stat"><span class="stat-num">2.5</span><span class="stat-label">Min / Match</span></div>
+    </div>
+  </section>
+
+  <!-- Project Section -->
+  <section class="home-section home-section-alt" id="project">
+    <h2>FlintAI - Innovation Project</h2>
+    <p class="section-sub">Our Solution to Archaeological Fragmentation</p>
+    
+    <div class="project-split">
+      <div class="project-block">
+        <div class="block-badge">The Problem</div>
+        <h3>Fragments Lost in Time</h3>
+        <p>Archaeologists excavating ancient sites routinely recover thousands of pottery shards, stone fragments, and broken artifacts - but lack effective systematic methods to match and reassemble them.</p>
+        <ul class="problem-list">
+          <li>Thousands of fragments per excavation site</li>
+          <li>Manual matching takes months or years</li>
+          <li>Institutional knowledge lost when experts retire</li>
+          <li>Storage degradation damages fragments further</li>
+        </ul>
+      </div>
+      <div class="project-block">
+        <div class="block-badge block-badge-sol">Our Solution</div>
+        <h3>AI-Powered Fragment Matching</h3>
+        <p>FlintAI is a web platform that uses computer vision and machine learning to analyze photographs of artifact fragments, classify them by structural characteristics, and suggest fragments with high matching potential.</p>
+        <div class="features">
+          <div class="feature"><strong>Photo Analysis</strong> - Upload fragment photos; AI extracts shape, texture, and edge data</div>
+          <div class="feature"><strong>Smart Classification</strong> - Classify fragments by period, material, and form</div>
+          <div class="feature"><strong>Match Suggestions</strong> - Similarity scoring ranks candidate matches from database</div>
+          <div class="feature"><strong>Digital Archive</strong> - Preserve fragments digitally for future reconstruction</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="how-it-works">
+      <h3>How It Works</h3>
+      <div class="steps">
+        <div class="step"><span class="step-num">01</span><strong>Photograph</strong>Archaeologist photographs fragment under standardized lighting</div>
+        <div class="step-arrow">-&gt;</div>
+        <div class="step"><span class="step-num">02</span><strong>Upload</strong>Image uploaded to FlintAI via web interface</div>
+        <div class="step-arrow">-&gt;</div>
+        <div class="step"><span class="step-num">03</span><strong>Analyze</strong>AI model extracts features from fragment</div>
+        <div class="step-arrow">-&gt;</div>
+        <div class="step"><span class="step-num">04</span><strong>Match</strong>Top candidate matches surfaced from the database</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sponsorship Section -->
+  <section class="home-section" id="sponsor">
+    <h2>Our Journey</h2>
+    <div class="sponsor-story">
+      <div class="sponsor-text">
+        <p>The Flintstones were founded under Ozel Cakabey Okullari for the 2025-2026 season. We placed 3rd at the FLL Aegean Region Tournament, earned a spot at Nationals, and then <strong>became Turkey Champions</strong> - beating 74 teams from 21 cities.</p>
+        <p>Now we represent Turkey at the <strong>FIRST World Festival in Houston</strong> - the world's largest science and technology tournament.</p>
+        <p class="contact-info">
+          Email: theflintstones23fll@gmail.com<br>
+          Instagram: @theflintstones_fll<br>
+          Coach: Oguzhan Kose
+        </p>
+      </div>
+      <div class="sponsor-img">
+        <img src="/static/fll_images/team_photo.jpg" alt="The Flintstones at Nationals" />
+        <div class="img-caption">National Champions - 74 Teams, 21 Cities</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Team Section -->
+  <section class="home-section home-section-alt" id="team">
+    <h2>About the Team</h2>
+    <p class="team-intro">We are <strong>The Flintstones</strong> - a passionate FLL team named after the enduring spirit of those who built civilization from stone. Founded at Ozel Cakabey Okullari under coach Oguzhan Kose - who has led teams to the Asia-Pacific World Championship over 16 years.</p>
+    <div class="team-values">
+      <span class="value-chip">Gracious Professionalism</span>
+      <span class="value-chip">Real-World Impact</span>
+      <span class="value-chip">National Champions</span>
+      <span class="value-chip">Ozel Cakabey Okullari</span>
+    </div>
+    
+    <div class="team-grid">
+      <div class="team-card"><img src="/static/fll_images/Ali.png" alt="Ali Aslan Iskol" /><h3>Ali Aslan Iskol</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/Asil.png" alt="Asil Kahraman" /><h3>Asil Kahraman</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/Batuhan.png" alt="Batuhan Pekcan" /><h3>Batuhan Pekcan</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/DenizDerya.png" alt="Deniz Derya Gokcek" /><h3>Deniz Derya Gokcek</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/DenizTurker.png" alt="Deniz Turker" /><h3>Deniz Turker</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/EylulDoga.png" alt="Eylul Doga Soytekin" /><h3>Eylul Doga Soytekin</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/Eylul.png" alt="Eylul Karabulak" /><h3>Eylul Karabulak</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/Okyanus.png" alt="Okyanus Bora Sevik" /><h3>Okyanus Bora Sevik</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/Ozan.png" alt="Ozan Ozcelik" /><h3>Ozan Ozcelik</h3><span>Team Member</span></div>
+      <div class="team-card"><img src="/static/fll_images/Ozgu.png" alt="Ozgu Soylu" /><h3>Ozgu Soylu</h3><span>Team Member</span></div>
+    </div>
+  </section>
+
+  <!-- Login CTA -->
+  <section class="home-section home-cta">
+    <h2>Access FlintAI</h2>
+    <p>Login to upload fragments, search the database, and reconstruct artifacts.</p>
+    <div class="cta-btns">
+      <a href="/login" class="btn btn-primary btn-large">Login</a>
+      <a href="/register" class="btn btn-outline btn-large">Create Account</a>
+    </div>
+  </section>
+
+</div>
+
+{% endblock %}
+{% block styles %}
+<style>
+.home-hero {
+  background: linear-gradient(rgba(20,15,5,0.7), rgba(20,15,5,0.7)), 
+    url('/static/fll_images/team_photo.jpg') center/cover no-repeat;
+  color: #f5e6c8;
+  text-align: center;
+  padding: 5rem 2rem;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(212,169,41,0.2);
+  border: 1px solid #d4a929;
+  color: #d4a929;
+  padding: 0.3rem 1rem;
+  border-radius: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--earth-gold);
+  margin: 0 0 0.5rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+.hero-tagline {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--earth-stone);
+  margin: 0 0 0.5rem;
+}
+.hero-desc {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: #c4b896;
+  margin: 0 0 2rem;
+}
+.hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+.home-body { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+.home-section { padding: 3rem 0; border-bottom: 1px solid var(--earth-sand); }
+.home-section h2 {
+  font-family: var(--font-display);
+  color: var(--earth-brown);
+  font-size: 1.8rem;
+  margin: 0 0 0.3rem;
+  text-align: center;
+}
+.home-section-alt { background: rgba(255,255,255,0.3); padding: 3rem 1rem; border-radius: var(--radius); margin: 1rem 0; }
+.section-sub { text-align: center; font-family: var(--font-mono); color: var(--earth-stone); font-size: 0.9rem; margin: 0 0 2rem; }
+
+/* FLL cards */
+.fll-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.fll-card { background: #fff; border: 1px solid var(--earth-sand); border-radius: var(--radius); padding: 1.2rem; }
+.fll-icon { font-family: var(--font-display); color: var(--earth-brown); font-size: 1rem; margin-bottom: 0.5rem; }
+.fll-card p { font-size: 0.85rem; color: var(--earth-stone); margin: 0; line-height: 1.5; }
+.fll-stats { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.stat { text-align: center; }
+.stat-num { display: block; font-family: var(--font-display); font-size: 2rem; color: var(--earth-brown); }
+.stat-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--earth-stone); }
+
+/* Project */
+.project-split { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1.5rem 0; }
+@media (max-width: 700px) { .project-split { grid-template-columns: 1fr; } }
+.project-block { background: #fff; border: 1px solid var(--earth-sand); border-radius: var(--radius); padding: 1.5rem; }
+.block-badge { 
+  display: inline-block; background: #c0392b; color: #fff; padding: 0.2rem 0.8rem; 
+  border-radius: 0.3rem; font-size: 0.75rem; font-family: var(--font-mono); margin-bottom: 0.5rem;
+}
+.block-badge-sol { background: var(--earth-green); }
+.project-block h3 { font-family: var(--font-display); color: var(--earth-brown); margin: 0.3rem 0; font-size: 1.1rem; }
+.project-block p { font-size: 0.85rem; color: var(--earth-stone); line-height: 1.6; margin: 0.5rem 0; }
+.problem-list { list-style: none; padding: 0; margin: 0.5rem 0; }
+.problem-list li { font-size: 0.85rem; color: #c0392b; padding: 0.2rem 0; border-bottom: 1px dashed #e0b8b8; }
+.features { margin-top: 0.5rem; }
+.feature { font-size: 0.85rem; padding: 0.3rem 0; border-bottom: 1px solid #f0e8d8; }
+.feature strong { color: var(--earth-brown); }
+
+.how-it-works { margin-top: 2rem; }
+.how-it-works h3 { font-family: var(--font-display); color: var(--earth-brown); text-align: center; margin-bottom: 1rem; }
+.steps { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+.step { text-align: center; max-width: 120px; }
+.step-num { display: block; font-family: var(--font-display); color: var(--earth-gold); font-size: 1.2rem; }
+.step strong { display: block; font-size: 0.8rem; color: var(--earth-brown); }
+.step { font-size: 0.7rem; color: var(--earth-stone); margin-top: 0.2rem; }
+.step-arrow { color: var(--earth-tan); font-size: 1.2rem; }
+
+/* Sponsorship */
+.sponsor-story { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; margin-top: 1.5rem; }
+@media (max-width: 700px) { .sponsor-story { grid-template-columns: 1fr; } }
+.sponsor-text p { font-size: 0.85rem; color: var(--earth-stone); line-height: 1.7; }
+.contact-info { font-family: var(--font-mono); font-size: 0.8rem; color: var(--earth-stone); margin-top: 1rem; line-height: 1.8; }
+.sponsor-img img { width: 100%; border-radius: var(--radius); border: 2px solid var(--earth-sand); }
+.img-caption { font-family: var(--font-mono); font-size: 0.75rem; color: var(--earth-stone); text-align: center; margin-top: 0.5rem; }
+
+/* Team */
+.team-intro { font-size: 0.9rem; color: var(--earth-stone); text-align: center; max-width: 700px; margin: 0.5rem auto 1.5rem; line-height: 1.6; }
+.team-values { display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.value-chip { background: var(--earth-sand); color: var(--earth-brown); padding: 0.3rem 0.8rem; border-radius: 2rem; font-size: 0.75rem; font-family: var(--font-mono); }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+.team-card { text-align: center; background: #fff; border: 1px solid var(--earth-sand); border-radius: var(--radius); padding: 1rem 0.5rem; }
+.team-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--earth-sand); margin-bottom: 0.5rem; }
+.team-card h3 { font-family: var(--font-display); font-size: 0.8rem; color: var(--earth-brown); margin: 0 0 0.2rem; }
+.team-card span { font-family: var(--font-mono); font-size: 0.65rem; color: var(--earth-stone); }
+
+/* CTA */
+.home-cta { text-align: center; padding: 3rem 0; }
+.home-cta p { font-family: var(--font-mono); color: var(--earth-stone); font-size: 0.9rem; margin: 0.5rem 0 1.5rem; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+/* Nav adjustments for home */
+.navbar-brand { font-size: 1.3rem; }
+</style>
+{% endblock %}

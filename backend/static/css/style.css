@@ -51,6 +51,8 @@ a:hover { color: var(--gold-light); }
 .navbar-links a:hover { color: var(--gold); background: rgba(212,169,41,0.1); }
 .btn-gold { background: var(--gold) !important; color: var(--earth-dark) !important; font-weight: 600; padding: 0.4rem 1rem; }
 .btn-gold:hover { background: var(--gold-light) !important; color: var(--earth-dark); }
+.btn-sponsor-nav { background: #2e7d32 !important; color: #fff !important; font-weight: 600; padding: 0.4rem 1rem; border: none; }
+.btn-sponsor-nav:hover { background: #388e3c !important; color: #fff; }
 
 /* Buttons */
 .btn {

@@ -328,10 +328,18 @@ def _get_current_user():
 
 @app.route("/")
 def page_index():
+    return render_template("home.html", user=None)
+
+@app.route("/dashboard")
+def page_dashboard():
     user = _get_current_user()
     if not user:
         return render_template("login.html", user=None)
     return render_template("dashboard.html", user=user.to_dict())
+
+@app.route("/sponsor")
+def page_sponsor():
+    return render_template("sponsor.html", user=None)
 
 @app.route("/login")
 def page_login():
@@ -812,7 +820,9 @@ def reconstruct():
         if len(image_meters) < 2:
             return jsonify({"error": "Not enough fragments detected."}), 500
 
-        reconstruct_multi_separated(image_meters, output_path, artifact_names=artifact_names)
+        result = reconstruct_multi_separated(image_meters, output_path, artifact_names=artifact_names)
+        if result is None:
+            return jsonify({"error": "Fragments do not connect."}), 400
 
         log_audit(user_id, "reconstruct", "artifacts", ",".join(artifact_ids))
         return jsonify({"reconstruction_url": f"/static/{output_name}", "artifact_count": len(artifacts),
