@@ -52,6 +52,12 @@ const api = {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
       }).then(async r => {
+        if (r.status === 401) {
+          localStorage.removeItem('flintai_token');
+          localStorage.removeItem('flintai_user');
+          window.location.href = '/login';
+          throw new Error('Unauthorized');
+        }
         const text = await r.text();
         try { return JSON.parse(text); } catch { return { error: text }; }
       }).catch(err => ({ error: err.message }));
